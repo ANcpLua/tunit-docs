@@ -1,0 +1,86 @@
+name: Weekly TUnit update
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: weekly-tunit
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find versions
+        id: version
+        run: |
+          old="$(cat VERSION)"
+          new="$(gh api repos/thomhurst/TUnit/releases/latest --jq .tag_name)"
+          echo "old=$old" >> "$GITHUB_OUTPUT"
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+          echo "TUnit: $old -> $new"
+
+      - name: Refresh docs
+        run: |
+          echo "${{ steps.version.outputs.new }}" > VERSION
+          python3 scripts/refresh_docs.py
+
+      - name: What's new
+        if: steps.version.outputs.old != steps.version.outputs.new
+        run: scripts/whats-new.sh "${{ steps.version.outputs.old }}" "${{ steps.version.outputs.new }}" > WHATSNEW.md
+
+      - name: Open or update the PR
+        env:
+          OLD: ${{ steps.version.outputs.old }}
+          NEW: ${{ steps.version.outputs.new }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Nothing changed."
+            exit 0
+          fi
+
+          if [ "$OLD" != "$NEW" ]; then
+            branch="tunit/$NEW"
+            title="TUnit $OLD → $NEW"
+          else
+            branch="docs/refresh-$(date -u +%F)"
+            title="TUnit docs refresh ($NEW)"
+          fi
+
+          {
+            if [ -f WHATSNEW.md ] && [ "$OLD" != "$NEW" ]; then
+              cat WHATSNEW.md
+            else
+              echo "No new TUnit release; tunit.dev pages changed."
+            fi
+            echo
+            echo "## Docs pages"
+            echo
+            echo '```'
+            git add -A docs
+            git diff --cached --stat -- docs | tail -n 50
+            echo '```'
+          } > /tmp/pr-body.md
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add -A
+          git commit -m "$title"
+          git push --force origin "$branch"
+
+          if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$branch" --title "$title" --body-file /tmp/pr-body.md
+          else
+            gh pr create --head "$branch" --title "$title" --body-file /tmp/pr-body.md
+          fi
