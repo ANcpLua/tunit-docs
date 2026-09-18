@@ -66,10 +66,14 @@ jobs:
             echo
             echo "## Docs pages"
             echo
-            echo '```'
             git add -A docs
-            git diff --cached --stat -- docs | tail -n 50
-            echo '```'
+            if git diff --cached --quiet -- docs; then
+              echo "No page changed."
+            else
+              echo '```'
+              git diff --cached --stat -- docs | tail -n 50
+              echo '```'
+            fi
           } > /tmp/pr-body.md
 
           git config user.name "github-actions[bot]"
