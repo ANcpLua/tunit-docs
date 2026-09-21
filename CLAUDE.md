@@ -1,7 +1,7 @@
 # TUnit docs — local Markdown copy
 
 Every page of https://tunit.dev/docs as Markdown, one file per page, same tree as the site.
-Mirrored from `https://tunit.dev/llms.txt`; latest TUnit release at refresh time: `v1.68.4` (see `VERSION`).
+Mirrored from `https://tunit.dev/llms.txt`; latest TUnit release at refresh time: `v1.68.17` (see `VERSION`).
 
 ## How to use this folder
 

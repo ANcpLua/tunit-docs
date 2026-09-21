@@ -4,7 +4,7 @@
 
 Last Updated
 
-This benchmark was automatically generated on **2026-09-18** from the latest CI run.
+This benchmark was automatically generated on **2026-09-21** from the latest CI run.
 
 **Environment:** Ubuntu Latest • .NET SDK 10.0.401
 
@@ -14,12 +14,12 @@ Full workflow: create → setup → invoke → verify:
 
 | Library         | Mean       | Error     | StdDev    | Allocated |
 | --------------- | ---------- | --------- | --------- | --------- |
-| **TUnit.Mocks** | 1.221 μs   | 0.0031 μs | 0.0027 μs | 6.23 KB   |
-| Imposter        | 1.711 μs   | 0.0064 μs | 0.0056 μs | 15.71 KB  |
-| Mockolate       | 1.045 μs   | 0.0057 μs | 0.0054 μs | 7.36 KB   |
-| Moq             | 137.647 μs | 0.7166 μs | 0.5984 μs | 36.09 KB  |
-| NSubstitute     | 12.273 μs  | 0.1590 μs | 0.2428 μs | 26.72 KB  |
-| FakeItEasy      | 9.255 μs   | 0.0389 μs | 0.0344 μs | 25.66 KB  |
+| **TUnit.Mocks** | 1.878 μs   | 0.0122 μs | 0.0102 μs | 6.23 KB   |
+| Imposter        | 2.719 μs   | 0.0225 μs | 0.0199 μs | 15.71 KB  |
+| Mockolate       | 1.664 μs   | 0.0090 μs | 0.0070 μs | 7.36 KB   |
+| Moq             | 407.883 μs | 2.2183 μs | 2.0750 μs | 36.35 KB  |
+| NSubstitute     | 18.794 μs  | 0.0531 μs | 0.0471 μs | 26.72 KB  |
+| FakeItEasy      | 18.191 μs  | 0.3525 μs | 0.3462 μs | 25.52 KB  |
 
 <!-- -->
 
@@ -33,4 +33,4 @@ Methodology
 
 View the [mock benchmarks overview](/docs/benchmarks/mocks/.md) for methodology details and environment information.
 
-*Last generated: 2026-09-18T02:32:22.133Z*
+*Last generated: 2026-09-21T02:37:24.392Z*
