@@ -1,7 +1,7 @@
 # TUnit docs — local Markdown copy
 
 Every page of https://tunit.dev/docs as Markdown, one file per page, same tree as the site.
-Mirrored from `https://tunit.dev/llms.txt`; latest TUnit release at refresh time: `v1.68.17` (see `VERSION`).
+Mirrored from `https://tunit.dev/llms.txt`; latest TUnit release at refresh time: `v1.70.1` (see `VERSION`).
 
 ## How to use this folder
 
@@ -144,6 +144,7 @@ This file is generated — edit `scripts/refresh_docs.py`, not this file.
 - `docs/reference/environment-variables.md` — **Environment Variables**: TUnit supports configuration through environment variables, allowing you to set defaults without modifying command-line arguments.
 - `docs/reference/programmatic-configuration.md` — **Programmatic Configuration**: Overview
 - `docs/reference/test-configuration.md` — **Test Configuration**: TUnit supports having a testconfig.json file within your test project.
+- `docs/reference/tunit0075.md` — **TUnit0075: Use the hook cancellation token for setup**: Severity: Warning
 
 ### `docs/writing-tests/`
 
