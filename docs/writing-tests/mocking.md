@@ -86,10 +86,10 @@ public class GreeterTests
 }
 ```
 
-The `Mock.Of<T>()` factory is also available as an alternative syntax:
+Prefer `T.Mock()` for creating mocks. The `Mock.Of<T>()` factory is equivalent, but reach for it only where `T.Mock()` is not available, such as multi-interface mocks:
 
 ```
-var mock = Mock.Of<IGreeter>(); // equivalent to IGreeter.Mock()
+var mock = Mock.Of<IGreeter>(); // equivalent to IGreeter.Mock(), which is preferred
 ```
 
 ## Key Concepts
@@ -208,7 +208,7 @@ var service = MyService.Mock("connectionString", 42);
 
 note
 
-`T.Mock()` requires C# 14 / .NET 10 or later (it uses C# 14 static extension members). For older language versions, or for multi-interface mocks, interfaces with static abstract members, delegates, and wrap mocks, use the `Mock.Of<T>()` / `Mock.Wrap()` / `Mock.OfDelegate<T>()` factory methods.
+TUnit.Mocks requires C# 14 or later (`LangVersion` 14 or `preview`), because its generated code uses C# 14 extension members. This applies to every creation syntax, including `Mock.Of<T>()`; older language versions report **TM004**. For multi-interface mocks, delegates, and wrap mocks, use the `Mock.Of<T1, T2>()`, `Mock.OfDelegate<T>()`, and `Mock.Wrap()` factory methods. For interfaces with static abstract members, see [`[GenerateMock]`](/docs/writing-tests/mocking/setup.md#interfaces-with-static-abstract-members).
 
 ### Implicit Conversion
 
@@ -277,3 +277,4 @@ See [Argument Matchers](/docs/writing-tests/mocking/argument-matchers.md) for th
 * [Advanced Features](/docs/writing-tests/mocking/advanced.md) — state machines, events, auto-mocking, diagnostics, and more
 * [HTTP Mocking](/docs/writing-tests/mocking/http.md) — mock `HttpClient` with `MockHttpHandler`
 * [Logging](/docs/writing-tests/mocking/logging.md) — capture and verify `ILogger` calls with `MockLogger`
+* Migrating from another library — [Moq](/docs/migration/mocking/moq.md), [NSubstitute](/docs/migration/mocking/nsubstitute.md), or [FakeItEasy](/docs/migration/mocking/fakeiteasy.md)

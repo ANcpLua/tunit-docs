@@ -1,7 +1,7 @@
 # TUnit docs — local Markdown copy
 
 Every page of https://tunit.dev/docs as Markdown, one file per page, same tree as the site.
-Mirrored from `https://tunit.dev/llms.txt`; latest TUnit release at refresh time: `v1.68.17` (see `VERSION`).
+Mirrored from `https://tunit.dev/llms.txt`; latest TUnit release at refresh time: `v1.74.0` (see `VERSION`).
 
 ## How to use this folder
 
@@ -41,7 +41,7 @@ This file is generated — edit `scripts/refresh_docs.py`, not this file.
 - `docs/assertions/extensibility/extensibility-chaining-and-converting.md` — **Chaining and Converting**: TUnit allows you to chain assertions that change the type being asserted, enabling fluent and expressive test code.
 - `docs/assertions/extensibility/extensibility-returning-items-from-await.md` — **Returning Data via await**: Sometimes, you may want your assertion to return a value, such as an item found in a collection, so you can use it in further assertions or logic.
 - `docs/assertions/extensibility/source-generator-assertions.md` — **Source Generator Assertions**: TUnit provides source generators to simplify creating custom assertions.
-- `docs/assertions/fsharp.md` — **FSharp**: As awaiting doesn't work quite the same in F#, the syntax instead looks like this
+- `docs/assertions/fsharp.md` — **FSharp**: The F# helpers ship in a separate package.
 - `docs/assertions/getting-started.md` — **Getting Started with Assertions**: TUnit provides a comprehensive, fluent assertion library that makes your tests readable and expressive.
 - `docs/assertions/library.md` — **Assertions Library**: Searchable library of all TUnit assertions
 - `docs/assertions/member-assertions.md` — **Member Assertions**: The .Member() method allows you to assert on object properties while maintaining the parent object's context for chaining.
@@ -133,6 +133,9 @@ This file is generated — edit `scripts/refresh_docs.py`, not this file.
 
 ### `docs/migration/`
 
+- `docs/migration/mocking/fakeiteasy.md` — **Migrating from FakeItEasy to TUnit.Mocks**: TUnit.Mocks generates mocks at compile time instead of creating runtime proxies.
+- `docs/migration/mocking/moq.md` — **Migrating from Moq to TUnit.Mocks**: TUnit.Mocks generates mocks at compile time instead of creating runtime proxies.
+- `docs/migration/mocking/nsubstitute.md` — **Migrating from NSubstitute to TUnit.Mocks**: TUnit.Mocks generates mocks at compile time instead of creating runtime proxies.
 - `docs/migration/mstest.md` — **Migrating from MSTest**: Migrating from MSTest to TUnit can improve test execution speed.
 - `docs/migration/nunit.md` — **Migrating from NUnit**: Migrating from NUnit to TUnit can improve test execution speed.
 - `docs/migration/testcontext-interface-organization.md` — **TestContext Interface Organization Migration Guide**: Overview
@@ -144,6 +147,7 @@ This file is generated — edit `scripts/refresh_docs.py`, not this file.
 - `docs/reference/environment-variables.md` — **Environment Variables**: TUnit supports configuration through environment variables, allowing you to set defaults without modifying command-line arguments.
 - `docs/reference/programmatic-configuration.md` — **Programmatic Configuration**: Overview
 - `docs/reference/test-configuration.md` — **Test Configuration**: TUnit supports having a testconfig.json file within your test project.
+- `docs/reference/tunit0075.md` — **TUnit0075: Use the hook cancellation token for setup**: Severity: Warning
 
 ### `docs/writing-tests/`
 
@@ -172,6 +176,7 @@ This file is generated — edit `scripts/refresh_docs.py`, not this file.
 - `docs/writing-tests/mocking/verification.md` — **Verification**: Verification uses the same methods as setup — the chain method (.WasCalled(), .WasNeverCalled()) makes it a verification instead of a setup.
 - `docs/writing-tests/nested-data-sources.md` — **Nested Data Sources with Initialization**: When writing integration tests, you often need complex test fixtures that depend on other initialized resources.
 - `docs/writing-tests/ordering.md` — **Test Ordering & Dependencies**: Ordering with [Order]
+- `docs/writing-tests/pairwise-tests.md` — **Pairwise Tests**: Matrix tests run every combination of parameter values, so the number of test cases grows exponentially with the number of parameters.
 - `docs/writing-tests/property-injection.md` — **Property Injection**: TUnit's AOT-compatible property injection system makes it easy to initialize properties on your test class with compile-time safety and excellent performance.
 - `docs/writing-tests/skip.md` — **Skipping Tests**: If you want to simply skip a test, just place a [Skip(reason)] attribute on your test with an explanation of why you're skipping it.
 - `docs/writing-tests/test-context.md` — **Test Context**: All tests have a TestContext object available to them.
