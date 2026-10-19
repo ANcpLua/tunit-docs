@@ -57,30 +57,32 @@ jobs:
             title="TUnit docs refresh ($NEW)"
           fi
 
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add -A
+          git commit -m "$title"
+
           {
             if [ -f WHATSNEW.md ] && [ "$OLD" != "$NEW" ]; then
-              cat WHATSNEW.md
+              printf '# TUnit %s → %s\n\n' "$OLD" "$NEW"
+              printf '[Full release notes, API changes and commits](%s/%s/blob/%s/WHATSNEW.md)\n' \
+                "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$(git rev-parse HEAD)"
             else
               echo "No new TUnit release; tunit.dev pages changed."
             fi
             echo
             echo "## Docs pages"
             echo
-            git add -A docs
-            if git diff --cached --quiet -- docs; then
+            if git diff --quiet HEAD^ HEAD -- docs; then
               echo "No page changed."
             else
               echo '```'
-              git diff --cached --stat -- docs | tail -n 50
+              git diff --stat HEAD^ HEAD -- docs | tail -n 50
               echo '```'
             fi
           } > /tmp/pr-body.md
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -C "$branch"
-          git add -A
-          git commit -m "$title"
           git push --force origin "$branch"
 
           if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
