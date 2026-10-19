@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Test PR descriptions
+        run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
+
       - name: Find versions
         id: version
         run: |
