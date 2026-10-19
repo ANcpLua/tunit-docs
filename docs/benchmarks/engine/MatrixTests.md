@@ -4,7 +4,7 @@
 
 Last Updated
 
-This benchmark was automatically generated on **2026-09-20** from the latest CI run.
+This benchmark was automatically generated on **2026-10-04** from the latest CI run.
 
 **Environment:** Ubuntu Latest • .NET SDK 10.0.401
 
@@ -12,12 +12,12 @@ This benchmark was automatically generated on **2026-09-20** from the latest CI 
 
 | Framework       | Version | Mean       | Median     | StdDev   |
 | --------------- | ------- | ---------- | ---------- | -------- |
-| **TUnit**       | 1.68.17 | 398.1 ms   | 396.6 ms   | 11.23 ms |
-| NUnit           | 4.6.1   | 1,710.4 ms | 1,710.9 ms | 81.77 ms |
-| MSTest          | 4.4.1   | 1,606.0 ms | 1,583.4 ms | 69.78 ms |
-| xUnit3          | 4.0.1   | 909.7 ms   | 893.4 ms   | 34.23 ms |
-| **TUnit (AOT)** | 1.68.17 | 118.9 ms   | 118.7 ms   | 0.63 ms  |
-| xUnit3\_AOT     | 4.0.1   | 277.1 ms   | 278.2 ms   | 4.53 ms  |
+| **TUnit**       | 1.72.16 | 410.6 ms   | 410.0 ms   | 4.16 ms  |
+| NUnit           | 5.0.0   | 1,623.6 ms | 1,624.7 ms | 14.92 ms |
+| MSTest          | 4.4.1   | 1,604.0 ms | 1,594.5 ms | 27.77 ms |
+| xUnit3          | 4.0.1   | 969.5 ms   | 966.7 ms   | 24.52 ms |
+| **TUnit (AOT)** | 1.72.16 | 119.0 ms   | 119.0 ms   | 0.55 ms  |
+| xUnit3\_AOT     | 4.0.1   | 273.8 ms   | 273.7 ms   | 0.41 ms  |
 
 ## 📈 Visual Comparison
 
@@ -33,4 +33,4 @@ Methodology
 
 View the [benchmarks overview](/docs/benchmarks/.md) for methodology details and environment information.
 
-*Last generated: 2026-09-20T00:35:50.558Z*
+*Last generated: 2026-10-04T01:16:39.756Z*
