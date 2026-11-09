@@ -4,22 +4,22 @@
 
 Last Updated
 
-This benchmark was automatically generated on **2026-09-21** from the latest CI run.
+This benchmark was automatically generated on **2026-11-08** from the latest CI run.
 
-**Environment:** Ubuntu Latest • .NET SDK 10.0.401
+**Environment:** Ubuntu Latest • .NET SDK 10.0.403
 
 ## 📊 Results
 
 Verifying mock method calls:
 
-| Library         | Mean          | Error        | StdDev       | Allocated |
-| --------------- | ------------- | ------------ | ------------ | --------- |
-| **TUnit.Mocks** | 712.40 ns     | 4.861 ns     | 4.309 ns     | 3008 B    |
-| Imposter        | 842.11 ns     | 10.410 ns    | 9.737 ns     | 4688 B    |
-| Mockolate       | 453.26 ns     | 4.011 ns     | 3.349 ns     | 2128 B    |
-| Moq             | 346,685.21 ns | 1,434.223 ns | 1,119.747 ns | 24548 B   |
-| NSubstitute     | 7,202.64 ns   | 41.423 ns    | 36.721 ns    | 10064 B   |
-| FakeItEasy      | 7,593.69 ns   | 38.657 ns    | 36.160 ns    | 10722 B   |
+| Library         | Mean          | Error      | StdDev     | Allocated |
+| --------------- | ------------- | ---------- | ---------- | --------- |
+| **TUnit.Mocks** | 662.20 ns     | 7.199 ns   | 6.734 ns   | 3040 B    |
+| Imposter        | 277.31 ns     | 5.483 ns   | 5.129 ns   | 1104 B    |
+| Mockolate       | 387.27 ns     | 7.690 ns   | 10.780 ns  | 2128 B    |
+| Moq             | 150,225.12 ns | 781.845 ns | 731.338 ns | 24577 B   |
+| NSubstitute     | 5,801.47 ns   | 58.687 ns  | 49.007 ns  | 10064 B   |
+| FakeItEasy      | 4,829.90 ns   | 82.895 ns  | 77.540 ns  | 10717 B   |
 
 <!-- -->
 
@@ -29,12 +29,12 @@ Verifying mock method calls:
 
 | Library         | Mean         | Error      | StdDev     | Allocated |
 | --------------- | ------------ | ---------- | ---------- | --------- |
-| **TUnit.Mocks** | 59.27 ns     | 0.369 ns   | 0.345 ns   | 320 B     |
-| Imposter        | 375.63 ns    | 2.852 ns   | 2.529 ns   | 2400 B    |
-| Mockolate       | 266.06 ns    | 1.491 ns   | 1.394 ns   | 1144 B    |
-| Moq             | 89,324.02 ns | 534.472 ns | 473.796 ns | 6918 B    |
-| NSubstitute     | 4,056.30 ns  | 34.456 ns  | 32.230 ns  | 7088 B    |
-| FakeItEasy      | 3,938.06 ns  | 27.526 ns  | 24.401 ns  | 5210 B    |
+| **TUnit.Mocks** | 47.23 ns     | 0.595 ns   | 0.528 ns   | 336 B     |
+| Imposter        | 123.07 ns    | 2.051 ns   | 1.818 ns   | 616 B     |
+| Mockolate       | 213.59 ns    | 4.307 ns   | 4.422 ns   | 1144 B    |
+| Moq             | 38,875.10 ns | 575.164 ns | 538.009 ns | 6922 B    |
+| NSubstitute     | 3,351.63 ns  | 20.663 ns  | 19.328 ns  | 7088 B    |
+| FakeItEasy      | 2,446.15 ns  | 18.564 ns  | 16.456 ns  | 5209 B    |
 
 <!-- -->
 
@@ -42,14 +42,14 @@ Verifying mock method calls:
 
 ### Multiple
 
-| Library         | Mean          | Error        | StdDev       | Allocated |
-| --------------- | ------------- | ------------ | ------------ | --------- |
-| **TUnit.Mocks** | 1,377.30 ns   | 10.105 ns    | 9.452 ns     | 4472 B    |
-| Imposter        | 2,019.22 ns   | 25.754 ns    | 24.090 ns    | 11192 B   |
-| Mockolate       | 1,267.96 ns   | 13.265 ns    | 12.408 ns    | 5240 B    |
-| Moq             | 473,399.64 ns | 3,315.600 ns | 3,101.414 ns | 34699 B   |
-| NSubstitute     | 12,844.55 ns  | 48.286 ns    | 40.321 ns    | 16763 B   |
-| FakeItEasy      | 13,945.43 ns  | 190.230 ns   | 168.634 ns   | 19233 B   |
+| Library         | Mean          | Error      | StdDev     | Allocated |
+| --------------- | ------------- | ---------- | ---------- | --------- |
+| **TUnit.Mocks** | 1,198.15 ns   | 21.068 ns  | 22.542 ns  | 4528 B    |
+| Imposter        | 544.14 ns     | 10.825 ns  | 11.583 ns  | 2304 B    |
+| Mockolate       | 977.90 ns     | 18.892 ns  | 23.892 ns  | 5240 B    |
+| Moq             | 195,313.79 ns | 457.088 ns | 405.196 ns | 34584 B   |
+| NSubstitute     | 10,388.04 ns  | 44.380 ns  | 41.513 ns  | 16889 B   |
+| FakeItEasy      | 8,756.43 ns   | 99.205 ns  | 92.796 ns  | 19238 B   |
 
 <!-- -->
 
@@ -63,4 +63,4 @@ Methodology
 
 View the [mock benchmarks overview](/docs/benchmarks/mocks/.md) for methodology details and environment information.
 
-*Last generated: 2026-09-21T02:37:24.392Z*
+*Last generated: 2026-11-08T02:26:36.812Z*

@@ -267,7 +267,17 @@ public class AppFixture : AspireFixture<Projects.MyAppHost>
 
 tip
 
-Resources are removed by exact name (case-sensitive) after the builder is created but before the app is built, so they never start. Unrecognised names are silently ignored.
+Resources are removed by exact name (case-sensitive) after the builder is created but before the app is built, so they never start. Unrecognised names are skipped with a log message.
+
+Removed resources can still have dependents. TUnit detaches the kept resources from them, so the kept resources start without them:
+
+* Child resources of a removed resource (for example a database on a removed server) are removed too.
+* `WaitFor` and `WaitForCompletion` on a removed resource are dropped.
+* Environment variables and arguments that reference a removed resource are not set. This covers `WithReference` (endpoints and connection strings) and endpoint values passed to `WithEnvironment` or `WithArgs`.
+* A value that combines a removed resource with other parts, such as a URL built from a kept and a removed endpoint, is dropped whole, because it cannot be resolved.
+* If a dropped argument follows an option name such as `--optional-url` added by the same `WithArgs` call, the option name is dropped too, so the next argument does not become its value. Arguments after a `--` separator are never paired. To keep a standalone flag that comes just before a referenced value, add the flag with a separate `WithArgs` call.
+
+Each change is written to the fixture's progress log. The kept resource must work without the removed dependency. For example, it must not require a connection string that is no longer set.
 
 ### Timeouts
 
@@ -395,6 +405,66 @@ When to use `Args` vs `ConfigureAppHost` vs `ConfigureBuilder`
 * Use **`Args`** for configuration values that the AppHost reads during `CreateBuilder(args)` — these must be set *before* the builder is created.
 * Use **`ConfigureAppHost`** to configure `DistributedApplicationOptions` (e.g., `DisableDashboard`) and `HostApplicationBuilderSettings` — these are passed to `CreateAsync` during builder creation.
 * Use **`ConfigureBuilder`** for service registrations, HTTP client defaults, and other configuration that can be applied *after* the builder is created.
+
+### Configuring Fixture Variants
+
+`Args`, `ConfigureAppHost`, and `ConfigureBuilder` are read inside `InitializeAsync`, not in the constructor. To run different AppHost configurations from one fixture type, use `SharedType.Keyed` and implement `IKeyedDataSource`. TUnit sets `Key` before `InitializeAsync` runs, so `Args` can depend on it:
+
+```
+public class AppFixture : AspireFixture<Projects.MyAppHost>, IKeyedDataSource
+
+{
+
+    public string Key { get; set; } = "";
+
+
+
+    protected override string[] Args => Key switch
+
+    {
+
+        "db-only" =>
+
+        [
+
+            "--Redis:IsEnabled=false",
+
+            "--WebApp:IsEnabled=false"
+
+        ],
+
+        _ => []
+
+    };
+
+}
+
+
+
+[ClassDataSource<AppFixture>(Shared = SharedType.Keyed, Key = "db-only")]
+
+public class MigrationTests(AppFixture fixture)
+
+{
+
+    [Test]
+
+    public async Task Database_Is_Available()
+
+    {
+
+        var connectionString = await fixture.GetConnectionStringAsync("postgresdb");
+
+
+
+        await Assert.That(connectionString).IsNotNull();
+
+    }
+
+}
+```
+
+Tests with the same key share one running AppHost. Each distinct key starts a separate AppHost, so keep the number of variants small. If you only need to drop resources, override `ResourcesToRemove()` instead.
 
 ## Watching Resource Logs
 
