@@ -57,7 +57,7 @@ public interface IMessageConnection
 
 // Usage
 
-var mock = Mock.Of<IMessageConnection>();
+var mock = IMessageConnection.Mock();
 
 mock.SendMessage(Any())
 
@@ -101,7 +101,7 @@ public interface IPayloadSource
 
 // Usage
 
-var mock = Mock.Of<IPayloadSource>();
+var mock = IPayloadSource.Mock();
 
 var received = 0;
 
@@ -387,7 +387,7 @@ repo.Reset();                // clear all mocks
 Get a diagnostic report of setup coverage and call matching:
 
 ```
-var mock = Mock.Of<IUniversalService>();
+var mock = IUniversalService.Mock();
 
 var svc = mock.Object;
 
@@ -462,9 +462,23 @@ var count = mock.Object.GetCount(); // -1
 
 The provider is consulted **before** auto-mocking and built-in smart defaults.
 
+## Native AOT and Generic Interfaces
+
+Create generic interface mocks with the extension method, such as `IRepository<int>.Mock()`. It calls the generated factory for that closed type directly, so it needs no runtime reflection and works under Native AOT with any type argument, including value types. Closed types named in `Mock.Of<T>()`, `MockRepository.Of<T>()`, or `[assembly: GenerateMock(typeof(IRepository<int>))]` are also registered ahead of time.
+
+If the closed type is only known at runtime, for example `Mock.Of<IRepository<T>>()` inside generic helper code, TUnit.Mocks builds the type with `MakeGenericType`. Native AOT may not have compiled that instantiation, especially for value-type arguments. In that case mock creation throws a `NotSupportedException` that names the type. To fix it, create the mock with the closed type, such as `IRepository<int>.Mock()`. This works for any type argument, including private nested types. When every type argument is accessible from the assembly, `[assembly: GenerateMock(typeof(IRepository<int>))]` also works.
+
+The built-in `DefaultValueProvider` uses reflection to build defaults for `Task<T>`, `ValueTask<T>`, and collection types, so it is not AOT-safe. A custom `IDefaultValueProvider` that does not use reflection works under Native AOT.
+
+### Generic Methods on Generic Interfaces
+
+A generic method on a generic interface can be set up with explicit type arguments, such as `mock.Invoke<string>(Any())`, on both `IOutbox<int>.Mock()` and `Mock.Of<IOutbox<int>>()`. On `Mock<T>`, this works for closed types named in `Mock.Of<T>()`, `MockRepository.Of<T>()`, or `[assembly: GenerateMock(typeof(IOutbox<int>))]`.
+
+A few methods still need `IOutbox<int>.Mock()` for explicit type arguments: those with a constraint that names an interface type parameter, such as `TOther Select<TOther>() where TOther : T`, those that use an unconstrained interface type parameter as `T?`, and overloads whose setup signatures become identical after substituting the closed type arguments. Colliding closed copies are omitted so registering the mock still compiles. When C# can infer the type arguments from the call, as in `mock.RoundTrip(Arg.Any<Guid>())`, every form works.
+
 ## Reset
 
-Clear all setups, call history, state, and auto-tracked property values:
+Clear all setups, call history, state, and auto-tracked property values. Configuration such as `Behavior`, `DefaultValueProvider` and `PassThrough` is kept:
 
 ```
 mock.GetUser(Any()).Returns(new User("Alice"));
@@ -483,6 +497,64 @@ _ = mock.Invocations.Count; // 0 (history cleared)
 ```
 
 The `SetupAllProperties()` flag is preserved across resets.
+
+## Clearing Recorded Calls
+
+`Reset()` removes setups, call history and state, but keeps configuration. To forget only the recorded calls and keep your setups, use `ClearCalls()`. This suits a test that acts twice and verifies only the second act:
+
+```
+mock.GetUser(Any()).Returns(new User("Alice"));
+
+svc.GetUser(1);
+
+
+
+mock.ClearCalls();
+
+
+
+_ = mock.Invocations.Count;                // 0 (history cleared)
+
+svc.GetUser(1);                            // setup kept: still returns Alice
+
+mock.GetUser(1).WasCalled(Times.Once);     // counts only the call after the clear
+```
+
+Setups, state, auto-tracked property values and event subscriptions are kept. Each setup's invoke count is reset, so `VerifyAll()` and diagnostics only count calls made after the clear. Sequenced setups (such as `ReturnsSequentially`) keep their position; only the count used by `VerifyAll()` and diagnostics is reset. The call history of cached auto-mocks is cleared too. Call `ClearCalls()` while the mock is idle: recording is lock-free, so a call made on another thread at the same moment may land in the discarded history and be lost. The clear is not atomic either, so a verification running at the same moment may see the history cleared before the invoke counts are. `MockRepository.ClearCalls()` clears every tracked mock. The instance-style `mock.ClearCalls()` is available on net9 and later; on net8 and older target frameworks use `Mock.ClearCalls(mock)`.
+
+## Pass-Through on Class Mocks
+
+By default a class mock runs the base implementation of any virtual member you have not configured. Set `PassThrough` to `false` to make unconfigured members behave like interface members instead: loose mocks return smart defaults (and auto-mocks for interface return types), and strict mocks throw `MockStrictBehaviorException` (a configured `DefaultValueProvider` is still consulted first, as for interface members). `Equals(object)`, `GetHashCode()` and `ToString()` keep running the base implementation so equality and dictionary lookups keep working. `Reset()` keeps `PassThrough`, like the other configuration (`Behavior`, `DefaultValueProvider`).
+
+```
+public class ShippingCalculator
+
+{
+
+    public virtual decimal Tax(decimal amount) => amount * 0.2m;
+
+    public virtual decimal Discount(decimal amount) => amount * 0.1m;
+
+}
+
+
+
+// Usage
+
+var calculator = ShippingCalculator.Mock();
+
+calculator.PassThrough = false;
+
+calculator.Discount(Any()).Returns(5m);
+
+
+
+_ = calculator.Object.Discount(100m); // 5 (configured)
+
+_ = calculator.Object.Tax(100m);      // 0 (base implementation is not called)
+```
+
+Calls are still recorded and can be verified. `PassThrough` can be changed at any time. It has no effect on interface or abstract members because they have no base implementation, so the `PassThrough` property is not generated for interface mocks. On a `Mock.Wrap(...)` mock, `false` stops unconfigured calls from reaching the wrapped instance. On net8 and older target frameworks, use `Mock.SetPassThrough(mock, false)` and `Mock.GetPassThrough(mock)`.
 
 ## Internals Access (experimental)
 

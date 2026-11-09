@@ -94,6 +94,58 @@ The `SharedType` parameter controls how instances are shared across tests:
 * **`SharedType.PerTestSession`** — single instance for the entire test run, shared across assemblies (best for expensive resources like containers)
 * **`SharedType.Keyed`** — share instances based on a key value (use the `Key` parameter)
 
+### Configuring Instances by Key
+
+With `SharedType.Keyed`, each distinct key gets its own instance, and tests that use the same key share it. Implement `IKeyedDataSource` to let one fixture type behave differently for each key. TUnit sets `Key` after the constructor runs and before `InitializeAsync` is called, so initialization can read it:
+
+```
+public class DatabaseFixture : IKeyedDataSource, IAsyncInitializer
+
+{
+
+    public string Key { get; set; } = "";
+
+
+
+    public bool SeedData { get; private set; }
+
+
+
+    public Task InitializeAsync()
+
+    {
+
+        SeedData = Key == "seeded";
+
+        return Task.CompletedTask;
+
+    }
+
+}
+
+
+
+[ClassDataSource<DatabaseFixture>(Shared = SharedType.Keyed, Key = "seeded")]
+
+public class ReportTests(DatabaseFixture database)
+
+{
+
+    [Test]
+
+    public async Task Uses_Seeded_Database()
+
+    {
+
+        await Assert.That(database.SeedData).IsTrue();
+
+    }
+
+}
+```
+
+Every key creates a separate instance, so each variant pays its own setup cost.
+
 ## Initialization and TearDown
 
 If you need to do some initialization or teardown for when this object is created/disposed, simply implement the `IAsyncInitializer` and/or `IAsyncDisposable` interfaces
@@ -135,6 +187,142 @@ public class MyTestClass
 
 }
 ```
+
+## When Instances Are Created
+
+TUnit constructs `ClassDataSource<T>` instances while it builds tests, before any test runs. This happens for every `SharedType`. Attributes that affect scheduling, such as `[NotInParallel]`, do not change it. With `SharedType.None`, the constructor can also run more than once for each data row.
+
+`IAsyncInitializer.InitializeAsync` runs later, during execution. It runs right before the first test that receives the instance, after the `[Before(Class)]` hooks, and within that test's `[NotInParallel]` constraint.
+
+Keep constructors free of side effects on shared state, such as caches, static fields, or files. Put that work in `InitializeAsync` so it happens in execution order:
+
+```
+public static class ProductCache
+
+{
+
+    private static readonly Dictionary<string, Product> Items = new();
+
+
+
+    public static void Register(Product product) => Items[product.Name] = product;
+
+
+
+    public static bool Contains(string name) => Items.ContainsKey(name);
+
+
+
+    public static void Clear() => Items.Clear();
+
+}
+
+
+
+public class Product : IAsyncInitializer
+
+{
+
+    public string Name { get; } = "Widget";
+
+
+
+    public Task InitializeAsync()
+
+    {
+
+        // Runs during execution, so a [NotInParallel] test that clears
+
+        // the cache cannot run between this registration and the test.
+
+        ProductCache.Register(this);
+
+        return Task.CompletedTask;
+
+    }
+
+}
+
+
+
+public class ProductTests
+
+{
+
+    [Test]
+
+    [NotInParallel]
+
+    public void Clears_Cache()
+
+    {
+
+        ProductCache.Clear();
+
+    }
+
+
+
+    [Test]
+
+    [NotInParallel]
+
+    [ClassDataSource<Product>]
+
+    public async Task Product_Is_Cached(Product product)
+
+    {
+
+        await Assert.That(ProductCache.Contains(product.Name)).IsTrue();
+
+    }
+
+}
+```
+
+Use `IAsyncInitializer`, not `IAsyncDiscoveryInitializer`, for this work. `IAsyncDiscoveryInitializer` runs while tests are built. See the [test lifecycle](/docs/writing-tests/lifecycle.md) for the full order.
+
+## When Shared Instances Are Disposed
+
+TUnit counts the tests that hold a shared instance. When the last of them ends, TUnit disposes the instance. A test that asks for the same instance after that, such as a dynamic test added later in the run, gets a new instance.
+
+A test can also fetch a shared instance itself with `SharedDataSources.GetOrCreate`. It gets the same instance that `ClassDataSource` injects with the same `SharedType` (and key or class). While the test runs, it holds the instance, so TUnit does not dispose it before the test ends. This covers the test class constructor, the test method, and `[Before(Test)]` and `[After(Test)]` hooks: an instance fetched in any of them is held by that test, and is disposed after the test ends if no other test holds it:
+
+```
+public class Database : IAsyncDisposable
+
+{
+
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+
+}
+
+
+
+public class ReportTests
+
+{
+
+    [Test]
+
+    public async Task Reads_From_Shared_Database()
+
+    {
+
+        var database = SharedDataSources.GetOrCreate<Database>(SharedType.PerTestSession);
+
+
+
+        await Assert.That(database).IsNotNull();
+
+    }
+
+}
+```
+
+`GetOrCreate` does not call `IAsyncInitializer.InitializeAsync`. Only instances that TUnit injects are initialized.
+
+Outside a running test, nothing holds a fetched instance. This includes `[Before(Class)]`, `[After(Class)]`, `[Before(Assembly)]`, `[After(Assembly)]`, `[Before(TestSession)]` and `[After(TestSession)]` hooks, and background code. TUnit disposes it when the last test that holds it ends, which can be while you still use it. If no test holds it, TUnit does not dispose it. To keep a shared instance for the whole session, inject it into a static property with `ClassDataSource` instead.
 
 # Class Data Source Overloads
 

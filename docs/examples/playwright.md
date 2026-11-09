@@ -95,7 +95,7 @@ public class LoginPageTests : PageTest
 
 Override the `BrowserName` property to control which browser is launched. The possible values are:
 
-* `chromium` (default)
+* `chromium` (default, unless the `BROWSER` environment variable names another; see [Headed Runs and Browser Selection](#headed-runs-and-browser-selection))
 * `firefox`
 * `webkit`
 
@@ -146,6 +146,31 @@ public class HeadlessChromeTests : PageTest
 
 }
 ```
+
+## Headed Runs and Browser Selection
+
+Switch to a visible browser or a different browser for a whole run with environment variables, without changing code. Like the Microsoft Playwright test adapters, TUnit reads:
+
+* `HEADED=1` (or `true`): launch visible browsers instead of headless ones.
+* `BROWSER=chromium|firefox|webkit`: the default `BrowserName`. An unknown value fails the test with an error naming the variable.
+
+```
+HEADED=1 dotnet run --project Tests
+
+BROWSER=firefox dotnet run --project Tests
+```
+
+Both apply to every `BrowserTest`, `ContextTest`, `PageTest`, `BrowserFixture`, `ContextFixture` and `PageFixture` consumer. CI runs without the variables stay headless on Chromium. Make sure the selected browser is installed, for example with `pwsh bin/Debug/netX/playwright.ps1 install firefox`, replacing `netX` with your test project's target framework.
+
+`HEADED` only affects browsers launched locally. When `PLAYWRIGHT_SERVICE_ACCESS_TOKEN` and `PLAYWRIGHT_SERVICE_URL` are set, TUnit connects to the remote Playwright service instead, which ignores launch options, so `HEADED=1` has no effect. `BROWSER` still selects the remote browser.
+
+Headless mode is decided in this order:
+
+1. An explicit `BrowserTypeLaunchOptions.Headless`, whether passed to the base constructor, returned from `BrowserFixture.GetLaunchOptions()`, or set in `PlaywrightSettings.DefaultBrowserTypeLaunchOptions`.
+2. `HEADED=1`.
+3. Playwright's default: headless.
+
+`PWDEBUG=1` is applied by Playwright itself and always opens a visible browser, even when `Headless` is `true`. Leave `Headless` unset to let `HEADED` decide. Overriding `BrowserName` likewise pins the browser regardless of `BROWSER`. The variables are read when a browser launches, so a `[Before(TestSession)]` hook can still set them.
 
 ## Limiting Parallel Browser Tests
 
@@ -304,5 +329,141 @@ public class LoginPageTests : PageTest
 * `path` - directory recordings are written to, resolved relative to the test application's working directory unless given as an absolute path. Defaults to `"playwright-artifacts"`.
 * `width` - viewport width used for the recording, in pixels. Defaults to `1280`.
 * `height` - viewport height used for the recording, in pixels. Defaults to `1400`.
+
+## Screenshots and Traces on Failure
+
+Add `[CaptureOnFailure]` to capture a full-page screenshot of each open page and a [Playwright trace](https://playwright.dev/dotnet/docs/trace-viewer) when a test fails, times out or is cancelled. Both files are attached to the test result. Passing and skipped tests discard the trace and write no files.
+
+```
+[CaptureOnFailure]
+
+public class LoginPageTests : PageTest
+
+{
+
+    [Test]
+
+    public async Task Login_Button_Is_Visible()
+
+    {
+
+        await Page.GotoAsync("https://example.com/login");
+
+
+
+        await Assert.That(await Page.Locator("button#login").IsVisibleAsync()).IsTrue();
+
+    }
+
+}
+```
+
+The attribute can go on a method, a class or an assembly (`[assembly: CaptureOnFailure]`); the closest one applies. It works for contexts created by `ContextTest`, `PageTest` and per-test `ContextFixture` and `PageFixture` instances.
+
+Files are named `<test id hash>_<display name>.png` and `<test id hash>_<display name>.trace.zip`. The hash comes from the unique test id, so parallel tests in one class and `[Arguments]` variants of one method never write to the same file. Retries add `-attemptN`, and a test with more than one open page gets one screenshot per page (`-page1`, `-page2`). Open a trace with `pwsh bin/Debug/netX/playwright.ps1 show-trace <file>` or at [trace.playwright.dev](https://trace.playwright.dev).
+
+```
+public class CheckoutTests : PageTest
+
+{
+
+    [Test]
+
+    [CaptureOnFailure(path: "failures", Trace = false)]
+
+    public async Task Checkout_Page_Is_Visible()
+
+    {
+
+        await Page.GotoAsync("https://example.com/checkout");
+
+
+
+        await Assert.That(await Page.Locator("body").IsVisibleAsync()).IsTrue();
+
+    }
+
+}
+```
+
+* `path` - directory files are written to, resolved relative to the test application's working directory unless given as an absolute path. Defaults to `"playwright-artifacts"`.
+* `Screenshot` - take a full-page screenshot of each open page. Defaults to `true`.
+* `Trace` - record a trace with screenshots, DOM snapshots and sources. Defaults to `true`.
+
+Capture runs after your `[After(Test)]` hooks and before the context closes, so a test whose body passes but whose teardown hook throws is captured too. As with `[RecordVideo]`, captured `ContextFixture` and `PageFixture` instances are created again for each retry attempt. Fixtures shared between tests are skipped, because no single test owns them. Fixture capture needs .NET 8 or later; on .NET Framework (the `netstandard2.0` build) only `ContextTest` and `PageTest` are captured, because TUnit cannot tell whether a fixture is shared there. If a screenshot or trace cannot be saved, for example because the browser crashed, the reason is written to the test's error output and the test result is not changed.
+
+## Shared Browser Crashes
+
+When a shared browser disconnects without TUnit closing it, for example because it crashed, every test that uses it fails with `TargetClosedException: Target page, context or browser has been closed`. TUnit records when the browser disconnected and reports it on each affected test:
+
+* A fixture that cannot create its context or page fails with `The shared chromium browser disconnected at 2026-10-31 12:01:03.412 UTC, before this failure...`, with the Playwright error as the inner exception.
+* A test that fails with a Playwright error after the disconnect gets the same note in its error output.
+
+`BrowserFixture.DisconnectedAt` exposes the time. To keep a long run going after a crash, let the shared `BrowserFixture` launch a new browser for the next context it creates:
+
+```
+public class PlaywrightSetup
+
+{
+
+    [Before(HookType.TestDiscovery)]
+
+    public static Task Configure(BeforeTestDiscoveryContext context)
+
+    {
+
+        context.Settings.PlaywrightSettings.RelaunchDisconnectedBrowser = true;
+
+
+
+        return Task.CompletedTask;
+
+    }
+
+}
+```
+
+Tests that inherit `BrowserTest`, `ContextTest` or `PageTest` already get a new browser after a failed test.
+
+## Trace Context Propagation
+
+TUnit can add W3C `traceparent` and `baggage` headers from the current test to the requests your page sends to the application under test. This lets the application's telemetry be correlated with the test that triggered it.
+
+Headers are sent only to the origins under test. By default this is the origin of `BaseURL` in the context options. If no base URL is set, no headers are sent. List the origins explicitly with `TraceContextOrigins`:
+
+```
+public class DashboardTests : PageTest
+
+{
+
+    public override IReadOnlyList<string>? TraceContextOrigins => ["https://localhost:7217"];
+
+
+
+    [Test]
+
+    public async Task Dashboard_Loads()
+
+    {
+
+        await Page.GotoAsync("https://localhost:7217/dashboard");
+
+        await Assert.That(await Page.TitleAsync()).IsEqualTo("Dashboard");
+
+    }
+
+}
+```
+
+`ContextFixture` has the same property as a `protected virtual` member. Override `PropagateTraceContext` to return `false` to disable propagation.
+
+Requests to other origins, such as web fonts or third-party APIs, never receive the headers. `traceparent` is not a CORS-safelisted header, so sending it to a third-party origin causes a CORS preflight that most servers reject, and it also leaks the test's trace id.
+
+The headers are added by a context route, which has these limits:
+
+* Playwright disables its HTTP cache for contexts with routes. Set `PropagateTraceContext` to `false` to keep the cache.
+* Routes you add later run before TUnit's route. Call `route.FallbackAsync()` instead of `route.ContinueAsync()` in them to keep the headers.
+* Context routes do not see WebSocket traffic or requests handled by a service worker, so those requests get no headers. To route requests that a service worker would handle, set `ServiceWorkers = ServiceWorkerPolicy.Block` in the context options.
+* When a request to an origin under test is redirected, Playwright keeps the headers on the redirected request, even if it goes to another origin.
 
 For full Playwright API details, see the [Playwright for .NET documentation](https://playwright.dev/dotnet/).
