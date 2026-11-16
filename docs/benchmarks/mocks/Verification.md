@@ -4,9 +4,9 @@
 
 Last Updated
 
-This benchmark was automatically generated on **2026-09-21** from the latest CI run.
+This benchmark was automatically generated on **2026-11-16** from the latest CI run.
 
-**Environment:** Ubuntu Latest • .NET SDK 10.0.401
+**Environment:** Ubuntu Latest • .NET SDK 11.0.100
 
 ## 📊 Results
 
@@ -14,12 +14,12 @@ Verifying mock method calls:
 
 | Library         | Mean          | Error        | StdDev       | Allocated |
 | --------------- | ------------- | ------------ | ------------ | --------- |
-| **TUnit.Mocks** | 712.40 ns     | 4.861 ns     | 4.309 ns     | 3008 B    |
-| Imposter        | 842.11 ns     | 10.410 ns    | 9.737 ns     | 4688 B    |
-| Mockolate       | 453.26 ns     | 4.011 ns     | 3.349 ns     | 2128 B    |
-| Moq             | 346,685.21 ns | 1,434.223 ns | 1,119.747 ns | 24548 B   |
-| NSubstitute     | 7,202.64 ns   | 41.423 ns    | 36.721 ns    | 10064 B   |
-| FakeItEasy      | 7,593.69 ns   | 38.657 ns    | 36.160 ns    | 10722 B   |
+| **TUnit.Mocks** | 727.78 ns     | 10.528 ns    | 9.848 ns     | 3040 B    |
+| Imposter        | 267.11 ns     | 3.613 ns     | 3.203 ns     | 1096 B    |
+| Mockolate       | 408.77 ns     | 5.952 ns     | 5.568 ns     | 2104 B    |
+| Moq             | 366,842.93 ns | 2,307.470 ns | 2,158.409 ns | 24300 B   |
+| NSubstitute     | 6,864.33 ns   | 27.243 ns    | 21.270 ns    | 10024 B   |
+| FakeItEasy      | 7,024.86 ns   | 32.450 ns    | 30.354 ns    | 10506 B   |
 
 <!-- -->
 
@@ -27,14 +27,14 @@ Verifying mock method calls:
 
 ### Never
 
-| Library         | Mean         | Error      | StdDev     | Allocated |
-| --------------- | ------------ | ---------- | ---------- | --------- |
-| **TUnit.Mocks** | 59.27 ns     | 0.369 ns   | 0.345 ns   | 320 B     |
-| Imposter        | 375.63 ns    | 2.852 ns   | 2.529 ns   | 2400 B    |
-| Mockolate       | 266.06 ns    | 1.491 ns   | 1.394 ns   | 1144 B    |
-| Moq             | 89,324.02 ns | 534.472 ns | 473.796 ns | 6918 B    |
-| NSubstitute     | 4,056.30 ns  | 34.456 ns  | 32.230 ns  | 7088 B    |
-| FakeItEasy      | 3,938.06 ns  | 27.526 ns  | 24.401 ns  | 5210 B    |
+| Library         | Mean         | Error        | StdDev       | Allocated |
+| --------------- | ------------ | ------------ | ------------ | --------- |
+| **TUnit.Mocks** | 49.33 ns     | 0.771 ns     | 0.721 ns     | 336 B     |
+| Imposter        | 122.68 ns    | 0.946 ns     | 0.885 ns     | 616 B     |
+| Mockolate       | 212.60 ns    | 1.835 ns     | 1.532 ns     | 1104 B    |
+| Moq             | 96,915.99 ns | 1,390.515 ns | 1,300.689 ns | 7029 B    |
+| NSubstitute     | 3,963.07 ns  | 32.762 ns    | 30.645 ns    | 7056 B    |
+| FakeItEasy      | 3,672.91 ns  | 17.249 ns    | 15.291 ns    | 5105 B    |
 
 <!-- -->
 
@@ -44,12 +44,12 @@ Verifying mock method calls:
 
 | Library         | Mean          | Error        | StdDev       | Allocated |
 | --------------- | ------------- | ------------ | ------------ | --------- |
-| **TUnit.Mocks** | 1,377.30 ns   | 10.105 ns    | 9.452 ns     | 4472 B    |
-| Imposter        | 2,019.22 ns   | 25.754 ns    | 24.090 ns    | 11192 B   |
-| Mockolate       | 1,267.96 ns   | 13.265 ns    | 12.408 ns    | 5240 B    |
-| Moq             | 473,399.64 ns | 3,315.600 ns | 3,101.414 ns | 34699 B   |
-| NSubstitute     | 12,844.55 ns  | 48.286 ns    | 40.321 ns    | 16763 B   |
-| FakeItEasy      | 13,945.43 ns  | 190.230 ns   | 168.634 ns   | 19233 B   |
+| **TUnit.Mocks** | 1,407.52 ns   | 18.576 ns    | 16.467 ns    | 4528 B    |
+| Imposter        | 608.32 ns     | 11.782 ns    | 11.572 ns    | 2288 B    |
+| Mockolate       | 1,235.63 ns   | 10.513 ns    | 9.319 ns     | 5160 B    |
+| Moq             | 515,043.60 ns | 2,660.843 ns | 2,358.768 ns | 34890 B   |
+| NSubstitute     | 12,863.93 ns  | 54.707 ns    | 48.496 ns    | 16633 B   |
+| FakeItEasy      | 13,277.87 ns  | 108.484 ns   | 101.476 ns   | 19040 B   |
 
 <!-- -->
 
@@ -63,4 +63,4 @@ Methodology
 
 View the [mock benchmarks overview](/docs/benchmarks/mocks/.md) for methodology details and environment information.
 
-*Last generated: 2026-09-21T02:37:24.392Z*
+*Last generated: 2026-11-16T02:25:25.447Z*

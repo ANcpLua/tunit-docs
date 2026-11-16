@@ -151,9 +151,8 @@ public async Task TestPermissions(
 
 **What's tested**:
 
-* Clean build time
-* Incremental build time
-* Source generator overhead
+* Cold, non-incremental build time (`dotnet build --no-incremental --disable-build-servers`), so every build starts without a warm compiler server and the order frameworks are built in does not affect the result
+* Source generator and analyzer overhead, including their first-run cost
 
 **Why it matters**: Fast builds improve developer productivity.
 
@@ -266,7 +265,7 @@ Example: "4x faster with AOT" means Native AOT is 4 times faster than JIT.
 
 ### Daily Execution
 
-Benchmarks run automatically every 24 hours via [GitHub Actions](https://github.com/thomhurst/TUnit/blob/main/.github/workflows/speed-comparison.yml).
+Benchmarks run automatically every week via [GitHub Actions](https://github.com/thomhurst/TUnit/blob/main/.github/workflows/speed-comparison.yml).
 
 ### Process
 
