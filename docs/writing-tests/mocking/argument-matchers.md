@@ -21,7 +21,12 @@ TUnit.Mocks automatically imports the `Arg` class via `global using static`, so 
 | `IsNotNull<T>()`                        | Any non-null value                                                                 |
 | `Matches(pattern)`                      | String matching a regex pattern                                                    |
 | `Matches(regex)`                        | String matching a compiled `Regex`                                                 |
+| `StartsWith(prefix)`                    | String starting with a prefix (optional `StringComparison`)                        |
+| `EndsWith(suffix)`                      | String ending with a suffix (optional `StringComparison`)                          |
+| `Contains(substring)`                   | String containing a substring (optional `StringComparison`)                        |
 | `Contains<TCol, TElem>(item)`           | Collection containing an element                                                   |
+| `IsOfType<TDerived>()`                  | Instance of `TDerived` (or a subtype), for a base-typed parameter                  |
+| `IsSameAs(reference)`                   | The exact same instance (reference equality); an equal value for value types       |
 | `HasCount<T>(n)`                        | Collection with exactly n elements                                                 |
 | `IsEmpty<T>()`                          | Empty collection                                                                   |
 | `SequenceEquals<TCol, TElem>(expected)` | Collection matching element-by-element                                             |
@@ -117,6 +122,10 @@ mock.GetUser(Is<int>(id => id > 0)).Returns(new User("Valid"));
 mock.GetUser(Is<int>(id => id <= 0)).Throws<ArgumentException>();
 ```
 
+For a non-nullable reference type, the predicate receives `T`, not `T?`, so `Is<User>(u => u.Name == "Alice")` needs no null guard. Use `Is<User?>(u => ...)` when the predicate should handle null itself, including when matching a parameter declared as `User?`.
+
+Nullability annotations do not distinguish `Is<User>` from `Is<User?>` at runtime: both pass null to the predicate. A predicate that explicitly accepts null can match it in either form. All predicate exceptions propagate, including `NullReferenceException` when a null argument is dereferenced. Use an explicit null guard, such as `Is<User?>(u => u is not null && u.Name == "Alice")`, when null should be a non-match.
+
 ### Inline Lambda Predicates
 
 You can write lambda predicates directly in mock setup and verification calls — no `Is<T>()` wrapper needed:
@@ -190,6 +199,64 @@ var pattern = new Regex(@"^user_\d+$", RegexOptions.Compiled);
 
 mock.Search(Matches(pattern)).Returns(new[] { "found" });
 ```
+
+### StartsWith, EndsWith and Contains
+
+```
+mock.Greet(StartsWith("Dr. ")).Returns("Hello, doctor");
+
+mock.Greet(EndsWith("Jr.")).Returns("Hello, junior");
+
+mock.Greet(Contains("smith", StringComparison.OrdinalIgnoreCase)).Returns("Hello, Smith");
+```
+
+Matching is case-sensitive (`StringComparison.Ordinal`) unless you pass a comparison. `null` never matches. `Contains("text")` with a string is a different overload from the collection form `Contains<TCollection, TElement>(item)`.
+
+## Type and Reference Matchers
+
+`IsOfType<TDerived>()` matches an argument that is an instance of `TDerived` or a subtype. The parameter type is inferred, so it lets you constrain a base-typed parameter. `IsSameAs(instance)` matches only that exact instance, ignoring any `Equals` override. A value type has no identity (each call boxes it again), so `IsSameAs(42)` matches an equal value instead. Both infer the parameter type from where they are used, so pass them straight into the call; to keep one in a variable, declare it with its type (`Arg<AuditEvent> sameLogout = IsSameAs(logout);`) rather than `var`.
+
+```
+public class AuditEvent { }
+
+public class LoginEvent : AuditEvent { }
+
+public class LogoutEvent : AuditEvent { }
+
+
+
+public interface IAuditSink
+
+{
+
+    string Record(AuditEvent evt);
+
+}
+
+
+
+// Usage
+
+var sink = IAuditSink.Mock();
+
+var logout = new LogoutEvent();
+
+
+
+sink.Record(IsOfType<LoginEvent>()).Returns("login");
+
+sink.Record(IsSameAs(logout)).Returns("that logout");
+
+
+
+_ = sink.Object.Record(new LoginEvent());  // "login"
+
+_ = sink.Object.Record(logout);            // "that logout"
+
+_ = sink.Object.Record(new LogoutEvent()); // "" (no match)
+```
+
+`null` never matches `IsOfType`.
 
 ## Collection Matchers
 

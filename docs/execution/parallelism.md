@@ -8,11 +8,15 @@ Parallel execution is a major contributor to TUnit's speed advantage. See the [p
 
 ## Default Behavior
 
-With no attributes, every test is eligible to run concurrently. The .NET thread pool determines how many execute at once. For most test suites this is the fastest option and requires no configuration.
+With no attributes, every test is eligible to run concurrently. At most 2 x the processor count run at once. Change this limit with `--maximum-parallel-tests`, the `TUNIT_MAX_PARALLEL_TESTS` environment variable or `context.Settings.Parallelism.MaximumParallelTests`. For most test suites the default is the fastest option and requires no configuration. If your tests share a resource with limited capacity, such as a database connection pool, lower the limit for those tests with `[ParallelLimiter<T>]`: extra concurrent tests add no throughput and only wait inside their test bodies, which counts toward `[Timeout]`.
 
 Async tests and the thread pool
 
 TUnit uses the standard .NET thread pool and, like most .NET applications, is susceptible to thread pool starvation. Blocking calls or heavy CPU-bound `Task.Run` work can delay async continuations in other tests and cause timed waits to expire.
+
+By default, the pool adds threads beyond its minimum only about once or twice per second, so a burst of blocking tests can delay timers and `[Timeout]` handling in unrelated tests. To reduce this, TUnit watches the thread pool while tests run. If queued work waits for a thread while most CPUs are idle, TUnit raises the pool's minimum worker thread count to the maximum number of parallel tests plus one per processor. If the pool is still starved once it has grown that far (for example because keyed `[NotInParallel]` tests run alongside the parallel limit), TUnit doubles the minimum, up to 64 threads per processor. The raised minimum lasts for the rest of the run. Suites that do not block never trigger this, so they keep the default thread count. TUnit never lowers a minimum that you configured yourself. To turn this off, set `context.Settings.Execution.ThreadPoolTuningEnabled = false` in a `[Before(HookType.TestDiscovery)]` hook (see [Programmatic Configuration](/docs/reference/programmatic-configuration.md)), or set the `TUNIT_DISABLE_THREADPOOL_TUNING=1` environment variable.
+
+When a test times out, the error message includes a thread pool snapshot. If the pool looked saturated, the message says the timeout may come from blocking calls in other tests.
 
 Use proper async throughout your tests: `await` asynchronous APIs instead of blocking with `.Wait()`, `.Result`, or `.GetAwaiter().GetResult()`. Await asynchronous I/O directly rather than wrapping it in `Task.Run`; `Task.Run` still uses the same thread pool.
 
