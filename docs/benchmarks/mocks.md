@@ -2,13 +2,13 @@
 
 Last Updated
 
-These benchmarks were automatically generated on **2026-09-21** from the latest CI run.
+These benchmarks were automatically generated on **2026-11-23** from the latest CI run.
 
-**Environment:** Ubuntu Latest • .NET SDK 10.0.401
+**Environment:** Ubuntu Latest • .NET SDK 11.0.100
 
 ## 🚀 Overview
 
-These benchmarks compare source-generated, AOT-compatible mocking libraries against the most popular .NET mocking libraries that use runtime proxy generation:
+These benchmarks compare TUnit.Mocks against other source-generated, AOT-compatible mocking libraries as well as the most popular .NET mocking libraries that use runtime proxy generation:
 
 | Library         | Approach                              | AOT Compatible |
 | --------------- | ------------------------------------- | -------------- |
@@ -25,10 +25,10 @@ Click on any benchmark to view detailed results:
 
 * [Callback](/docs/benchmarks/mocks/Callback.md) - Callback registration and execution
 * [CombinedWorkflow](/docs/benchmarks/mocks/CombinedWorkflow.md) - Full workflow: create → setup → invoke → verify
-* [Invocation](/docs/benchmarks/mocks/Invocation.md) - Calling methods on mock objects
+* [Invocation](/docs/benchmarks/mocks/Invocation.md) - Calling methods on mock objects with bounded history; time and allocation are reported per call
 * [MockCreation](/docs/benchmarks/mocks/MockCreation.md) - Mock instance creation performance
 * [Setup](/docs/benchmarks/mocks/Setup.md) - Mock behavior configuration (returns, matchers)
-* [Verification](/docs/benchmarks/mocks/Verification.md) - Verifying mock method calls
+* [Verification](/docs/benchmarks/mocks/Verification.md) - Mock verification workflows, including creation, setup and invocation where applicable
 
 ## 📈 What's Measured
 
@@ -36,16 +36,16 @@ Each benchmark category tests a specific aspect of mocking library usage:
 
 * **MockCreation** — Mock instance creation performance
 * **Setup** — Mock behavior configuration (returns, matchers)
-* **Invocation** — Calling methods on mock objects
-* **Verification** — Verifying mock method calls
+* **Invocation** — Calling methods on mock objects with bounded history; time and allocation are reported per call
+* **Verification** — Mock verification workflows, including creation, setup and invocation where applicable
 * **Callback** — Callback registration and execution
 * **CombinedWorkflow** — Full workflow: create → setup → invoke → verify
 
 ## 🔧 Methodology
 
-* **Tool**: BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
+* **Tool**: BenchmarkDotNet v0.16.0-preview\.2, Linux Ubuntu 26.04.1 LTS (Resolute Raccoon)
 * **OS**: Ubuntu Latest (GitHub Actions)
-* **Runtime**: .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+* **Runtime**: .NET 11.0.0 (11.0.0, 11.0.26.53018), X64 RyuJIT x86-64-v4
 * **Statistical Rigor**: Multiple iterations with warm-up and outlier detection
 * **Memory**: Allocation tracking enabled via `[MemoryDiagnoser]`
 
@@ -71,4 +71,4 @@ These benchmarks run automatically daily via [GitHub Actions](https://github.com
 
 Each benchmark runs multiple iterations with statistical analysis to ensure accuracy. Results may vary based on hardware and test characteristics.
 
-*Last generated: 2026-09-21T02:37:24.392Z*
+*Last generated: 2026-11-23T02:22:45.286Z*

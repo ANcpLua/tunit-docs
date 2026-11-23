@@ -1,25 +1,40 @@
 # Invocation Benchmark
 
-> Calling methods on mock objects — comparing **TUnit.Mocks** (source-generated) against runtime proxy-based mocking libraries.
+> Calling methods on mock objects with bounded history; time and allocation are reported per call — comparing **TUnit.Mocks** (source-generated) against other source-generated and runtime proxy-based mocking libraries.
 
 Last Updated
 
-This benchmark was automatically generated on **2026-09-21** from the latest CI run.
+This benchmark was automatically generated on **2026-11-23** from the latest CI run.
 
-**Environment:** Ubuntu Latest • .NET SDK 10.0.401
+**Environment:** Ubuntu Latest • .NET SDK 11.0.100
 
 ## 📊 Results
 
-Calling methods on mock objects:
+Calling methods on mock objects with bounded history; time and allocation are reported per call:
 
-| Library         | Mean       | Error       | StdDev   | Allocated |
-| --------------- | ---------- | ----------- | -------- | --------- |
-| **TUnit.Mocks** | 277.8 ns   | 69.12 ns    | 3.79 ns  | 128 B     |
-| Imposter        | 303.1 ns   | 47.55 ns    | 2.61 ns  | 168 B     |
-| Mockolate       | 121.4 ns   | 49.29 ns    | 2.70 ns  | 84 B      |
-| Moq             | 855.3 ns   | 298.05 ns   | 16.34 ns | 376 B     |
-| NSubstitute     | 761.6 ns   | 116.64 ns   | 6.39 ns  | 304 B     |
-| FakeItEasy      | 1,867.9 ns | 1,111.54 ns | 60.93 ns | 944 B     |
+### 100 calls
+
+| Library         | Mean      | Error      | StdDev   | Allocated |
+| --------------- | --------- | ---------- | -------- | --------- |
+| **TUnit.Mocks** | 62.37 ns  | 142.389 ns | 7.805 ns | 101 B     |
+| Imposter        | 16.00 ns  | 9.377 ns   | 0.514 ns | 48 B      |
+| Mockolate       | 23.92 ns  | 4.097 ns   | 0.225 ns | 56 B      |
+| Moq             | 202.57 ns | 15.180 ns  | 0.832 ns | 396 B     |
+| NSubstitute     | 146.58 ns | 28.872 ns  | 1.583 ns | 309 B     |
+| FakeItEasy      | 256.47 ns | 39.428 ns  | 2.161 ns | 981 B     |
+
+<!-- -->
+
+***
+
+| Library         | Mean      | Error     | StdDev   | Allocated |
+| --------------- | --------- | --------- | -------- | --------- |
+| **TUnit.Mocks** | 57.23 ns  | 2.900 ns  | 0.159 ns | 108 B     |
+| Imposter        | 15.47 ns  | 8.484 ns  | 0.465 ns | 48 B      |
+| Mockolate       | 17.81 ns  | 17.541 ns | 0.961 ns | 56 B      |
+| Moq             | 200.10 ns | 13.981 ns | 0.766 ns | 392 B     |
+| NSubstitute     | 177.77 ns | 75.407 ns | 4.133 ns | 376 B     |
+| FakeItEasy      | 250.24 ns | 44.378 ns | 2.433 ns | 992 B     |
 
 <!-- -->
 
@@ -27,35 +42,20 @@ Calling methods on mock objects:
 
 ### String
 
-| Library         | Mean       | Error     | StdDev   | Allocated |
-| --------------- | ---------- | --------- | -------- | --------- |
-| **TUnit.Mocks** | 167.0 ns   | 67.63 ns  | 3.71 ns  | 96 B      |
-| Imposter        | 309.0 ns   | 86.68 ns  | 4.75 ns  | 168 B     |
-| Mockolate       | 105.0 ns   | 77.58 ns  | 4.25 ns  | 60 B      |
-| Moq             | 560.2 ns   | 208.11 ns | 11.41 ns | 296 B     |
-| NSubstitute     | 663.9 ns   | 448.60 ns | 24.59 ns | 272 B     |
-| FakeItEasy      | 1,706.2 ns | 332.62 ns | 18.23 ns | 776 B     |
-
-<!-- -->
-
-***
-
-### 100 calls
-
-| Library         | Mean         | Error         | StdDev      | Allocated |
-| --------------- | ------------ | ------------- | ----------- | --------- |
-| **TUnit.Mocks** | 28,103.4 ns  | 10,908.88 ns  | 597.95 ns   | 12736 B   |
-| Imposter        | 29,723.7 ns  | 3,025.68 ns   | 165.85 ns   | 16800 B   |
-| Mockolate       | 11,942.5 ns  | 6,545.47 ns   | 358.78 ns   | 8400 B    |
-| Moq             | 85,275.2 ns  | 31,997.98 ns  | 1,753.92 ns | 37600 B   |
-| NSubstitute     | 74,783.4 ns  | 10,780.57 ns  | 590.92 ns   | 30848 B   |
-| FakeItEasy      | 191,219.3 ns | 112,040.45 ns | 6,141.32 ns | 94400 B   |
+| Library         | Mean      | Error     | StdDev   | Allocated |
+| --------------- | --------- | --------- | -------- | --------- |
+| **TUnit.Mocks** | 50.21 ns  | 0.807 ns  | 0.044 ns | 98 B      |
+| Imposter        | 13.91 ns  | 1.331 ns  | 0.073 ns | 48 B      |
+| Mockolate       | 18.69 ns  | 13.113 ns | 0.719 ns | 56 B      |
+| Moq             | 101.66 ns | 39.392 ns | 2.159 ns | 312 B     |
+| NSubstitute     | 150.60 ns | 11.454 ns | 0.628 ns | 344 B     |
+| FakeItEasy      | 211.81 ns | 64.148 ns | 3.516 ns | 832 B     |
 
 <!-- -->
 
 ## 🎯 Key Insights
 
-This benchmark compares **TUnit.Mocks** (source-generated) against runtime proxy-based mocking libraries for calling methods on mock objects.
+This benchmark compares **TUnit.Mocks** (source-generated) against other source-generated and runtime proxy-based mocking libraries for calling methods on mock objects with bounded history; time and allocation are reported per call.
 
 ***
 
@@ -63,4 +63,4 @@ Methodology
 
 View the [mock benchmarks overview](/docs/benchmarks/mocks/.md) for methodology details and environment information.
 
-*Last generated: 2026-09-21T02:37:24.392Z*
+*Last generated: 2026-11-23T02:22:45.286Z*

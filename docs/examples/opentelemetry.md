@@ -4,7 +4,7 @@ TUnit emits `System.Diagnostics.Activity` trace spans at every level of the test
 
 note
 
-Activity tracing requires .NET 8 or later. It is not available on .NET Framework or .NET Standard targets.
+Activity tracing requires .NET 10 or later. It is not available on .NET Framework or .NET Standard targets.
 
 ## Setup
 
@@ -247,6 +247,8 @@ test session
 
               └── shared setup / teardown / hooks
 ```
+
+Shared data-source objects (`SharedType.PerClass`, `PerAssembly`, `PerTestSession`, or `Keyed`) get an `initialize <Type>` span when they are initialized and a `dispose <Type>` span when they are disposed. Per-class objects sit under their `test suite` span; the others sit under the `test assembly` span. The `tunit.trace.scope` tag gives the object's lifetime, so you can see how long a fixture takes to tear down as well as to start.
 
 Each `test case` starts its own trace on purpose, so every test invocation gets a unique W3C TraceId. That keeps downstream service spans and logs correlated to a single test in Seq, Jaeger, Aspire, and similar backends. Parent-child relationships stay within the per-test trace; runner lifecycle spans are separate because they describe the whole session/class rather than one test.
 
